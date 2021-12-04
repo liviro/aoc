@@ -54,8 +54,11 @@ func parseBoards(raw []string) ([]board, error) {
 }
 
 func firstWinningScore(draws []int64, boards []board) int64 {
+	bs := make([]board, len(boards))
+	copy(bs, boards)
+
 	for _, d := range draws {
-		for _, b := range boards {
+		for _, b := range bs {
 			b.mark(d)
 			if b.hasWin() {
 				return b.score(d)
@@ -94,5 +97,5 @@ func main() {
 	}
 
 	fmt.Println("Part 1:", firstWinningScore(ds, bs))
-    fmt.Println("Part 2:", lastWinningScore(ds, bs))
+	fmt.Println("Part 2:", lastWinningScore(ds, bs))
 }
