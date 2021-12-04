@@ -58,10 +58,10 @@ func firstWinningScore(draws []int64, boards []board) int64 {
 	copy(bs, boards)
 
 	for _, d := range draws {
-		for _, b := range bs {
-			b.mark(d)
-			if b.hasWin() {
-				return b.score(d)
+		for i := range bs {
+			bs[i].mark(d)
+			if bs[i].hasWin() {
+				return bs[i].score(d)
 			}
 		}
 	}

@@ -12,17 +12,14 @@ type cell struct {
 	hit bool
 }
 
-type board struct {
-	b [][]cell
-}
+type board [size][size]cell
 
-// Parses and returns a new board from the raw input.
+// parseBoard parses and returns a new board from the raw input.
 func parseBoard(raw string) (board, error) {
 	rows := strings.Split(raw, "\n")
-	b := make([][]cell, size)
+	var b board
 	for i := 0; i < size; i++ {
-		b[i] = make([]cell, size)
-
+		// TrimSpace to handle the right-aligned nums at index 0.
 		row := strings.Fields(strings.TrimSpace(rows[i]))
 		for j := 0; j < size; j++ {
 			num, err := strconv.Atoi(row[j])
@@ -32,52 +29,48 @@ func parseBoard(raw string) (board, error) {
 			b[i][j] = cell{num: int64(num)}
 		}
 	}
-	return board{b: b}, nil
+	return b, nil
 }
 
-// Marks a cell with the given value on the board as hit (if found).
-func (board board) mark(val int64) {
-	for i := range board.b {
-		for j := range board.b[i] {
-			if board.b[i][j].num == val {
-				board.b[i][j].hit = true
+// mark marks a cell with the given value on the board as hit (if found).
+func (board *board) mark(val int64) {
+	for i := range board {
+		for j := range board[i] {
+			board[i][j].hit = board[i][j].hit || board[i][j].num == val
+		}
+	}
+}
+
+// hasWin determines whether the board has a win (fully hit column or row of board).
+func (board *board) hasWin() bool {
+Rows:
+	for i := 0; i < size; i++ {
+		for j := 0; j < size; j++ {
+			if !board[i][j].hit {
+				continue Rows
 			}
 		}
+		return true
 	}
-}
-
-// Determines whether the board has a win (fully hit column or board).
-func (board board) hasWin() bool {
-	// Check rows
-	for i := 0; i < size; i++ {
-		w := true
-		for j := 0; j < size; j++ {
-			w = w && board.b[i][j].hit
-		}
-		if w {
-			return true
-		}
-	}
-	// Check cols
+Cols:
 	for j := 0; j < size; j++ {
-		w := true
 		for i := 0; i < size; i++ {
-			w = w && board.b[i][j].hit
+			if !board[i][j].hit {
+				continue Cols
+			}
 		}
-		if w {
-			return true
-		}
+		return true
 	}
 	return false
 }
 
-// Gets the score of a board: sum of non-hit cells times the just-called value.
-func (board board) score(justCalled int64) int64 {
+// score gets the score of a board: sum of non-hit cells times the just-called value.
+func (board *board) score(justCalled int64) int64 {
 	var s int64
-	for i := range board.b {
-		for j := range board.b[i] {
-			if !board.b[i][j].hit {
-				s += board.b[i][j].num
+	for i := range board {
+		for j := range board[i] {
+			if !board[i][j].hit {
+				s += board[i][j].num
 			}
 		}
 	}
