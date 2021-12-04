@@ -75,7 +75,7 @@ func finalLocalePart2(moves []Move) int {
 }
 
 func main() {
-	ms, err := extractMoves("2-input.txt")
+	ms, err := extractMoves("input.txt")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Input ingestion went wrong: ", err)
 		os.Exit(1)

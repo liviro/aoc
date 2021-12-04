@@ -103,7 +103,7 @@ func getLifeSupportRating(report []string) int64 {
 }
 
 func main() {
-	r, err := extractReport("3-input.txt")
+	r, err := extractReport("input.txt")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Input ingestion went wrong: ", err)
 		os.Exit(1)
