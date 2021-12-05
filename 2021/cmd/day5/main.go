@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// minMax orders int64 pair passed in from smaller to larger
+// minMax orders the input int64 pair from smaller to larger.
 func minMax(a, b int64) (int64, int64) {
 	if a > b {
 		return b, a
@@ -19,7 +19,7 @@ func minMax(a, b int64) (int64, int64) {
 
 type point struct{ x, y int64 }
 
-// parsePoint returns a new point from the raw input of the format "x,y"
+// parsePoint returns a new point from the raw input of the format "x,y".
 func parsePoint(raw string) (point, error) {
 	s := strings.Split(raw, ",")
 
@@ -38,7 +38,7 @@ func parsePoint(raw string) (point, error) {
 
 type line struct{ from, to point }
 
-// parseLine returns a new line from the raw input of the format "a,b -> c,d"
+// parseLine returns a new line from the raw input of the format "a,b -> c,d".
 func parseLine(raw string) (line, error) {
 	ps := strings.Split(raw, " -> ")
 
@@ -55,17 +55,17 @@ func parseLine(raw string) (line, error) {
 	return line{from, to}, nil
 }
 
-// gridPoints returns a slice of all points that are on a horizontal or vertical line
+// gridPoints returns a slice of all points that are on a horizontal or vertical line.
 // If the line is diagonal, an empty slice is returned.
 func (l line) gridPoints() []point {
 	var ps []point
 
-	if l.from.x == l.to.x { // Horizontal
+	if l.from.x == l.to.x { // Vertical
 		min, max := minMax(l.from.y, l.to.y)
 		for i := min; i <= max; i++ {
 			ps = append(ps, point{l.from.x, i})
 		}
-	} else if l.from.y == l.to.y { // Vertical
+	} else if l.from.y == l.to.y { // Horizontal
 		min, max := minMax(l.from.x, l.to.x)
 		for i := min; i <= max; i++ {
 			ps = append(ps, point{i, l.from.y})
@@ -75,7 +75,7 @@ func (l line) gridPoints() []point {
 	return ps
 }
 
-// diagonalPoints returns a slice of all points that are on a diagonal line
+// diagonalPoints returns a slice of all points that are on a diagonal line.
 // If the line is horizontal or vertical, an empty slice is returned.
 func (l line) diagonalPoints() []point {
 	if l.from.x == l.to.x || l.from.y == l.to.y {
@@ -90,7 +90,7 @@ func (l line) diagonalPoints() []point {
 	} else {
 		top = l.to
 	}
-	// Determine if diagonal is going left or right from top to bottom
+	// Determine if diagonal is going left or right from top to bottom.
 	var yDir int64
 	if minY, _ := minMax(l.from.y, l.to.y); top.y == minY {
 		yDir = 1
@@ -106,7 +106,7 @@ func (l line) diagonalPoints() []point {
 	return ps
 }
 
-// extractLines parses and returns all lines in the input file
+// extractLines parses and returns all lines in the input file.
 func extractLines(fileName string) ([]line, error) {
 	fp, err := os.Open(fileName)
 	if err != nil {
@@ -126,20 +126,20 @@ func extractLines(fileName string) ([]line, error) {
 	return ls, s.Err()
 }
 
-// countOverlaps returns the number of points that have overlaps (more than 1 use)
+// countOverlaps returns the number of points that have overlaps (more than 1 use).
 func countOverlaps(points []point) int {
 	m := make(map[point]int64)
-    c := 0
+	c := 0
 	for _, p := range points {
 		m[p] += 1
-        if m[p] == 2 {
-          c += 1
-        }
+		if m[p] == 2 {
+			c += 1
+		}
 	}
 	return c
 }
 
-// countGridLineOverlaps returns the number of points that have overlapping grid lines
+// countGridLineOverlaps returns the number of points that have overlapping grid lines.
 // This excludes diagonal lines.
 func countGridLineOverlaps(lines []line) int {
 	var pts []point
@@ -149,7 +149,7 @@ func countGridLineOverlaps(lines []line) int {
 	return countOverlaps(pts)
 }
 
-// countAllOverlaps returns the number of points that have overlapping lines
+// countAllOverlaps returns the number of points that have overlapping lines.
 func countAllOverlaps(lines []line) int {
 	var pts []point
 	for _, l := range lines {
