@@ -154,7 +154,7 @@ func determineDigit(ordered [10]digit, unknown digit) int {
 			return i
 		}
 	}
-    panic("got a truly unknown digit!")
+	panic("got a truly unknown digit!")
 }
 
 // count1478 returns the number of instances when the display outputs a 1, 4, 7, or 8.
@@ -196,11 +196,11 @@ func countAll1478(ds []display) int {
 
 // sumAllOutputs returns the sum of the 4-digit int representation of the outputs of all displays.
 func sumAllOutputs(ds []display) int {
-  s := 0
-  for _, d := range ds {
-    s += d.extractOutputValue()
-  }
-  return s
+	s := 0
+	for _, d := range ds {
+		s += d.extractOutputValue()
+	}
+	return s
 }
 
 func main() {
