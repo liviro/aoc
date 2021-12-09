@@ -36,11 +36,6 @@ func (d digit) contains(other digit) bool {
 	return true
 }
 
-// equals returns whether the given digit equals the other.
-func (d digit) equals(other digit) bool {
-	return d == other
-}
-
 // display contains the digits 0-9 of this display, and the int values of the 4-digit output.
 type display struct {
 	digits  [10]digit
@@ -62,7 +57,7 @@ func parseDisplay(raw string) display {
 	ordered := orderDigits(ds)
 	var outputs [4]int
 	for i, o := range strings.Split(sections[1], " ") {
-		outputs[i] = determineDigit(ordered, parseDigit(o))
+		outputs[i] = determineDigit(&ordered, parseDigit(o))
 	}
 	return display{ordered, outputs}
 }
@@ -148,9 +143,9 @@ func orderDigits(all []digit) [10]digit {
 }
 
 // determineDigit returns the int value of the passed in unknown digit.
-func determineDigit(ordered [10]digit, unknown digit) int {
+func determineDigit(ordered *[10]digit, unknown digit) int {
 	for i, d := range ordered {
-		if unknown.equals(d) {
+		if unknown == d {
 			return i
 		}
 	}
