@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+	"unicode"
 )
 
 // A cave is a node in the tunnel graph.
@@ -18,7 +19,7 @@ const end = cave("end")
 
 // isBig returns whether or not a cave is big.
 func (c cave) isBig() bool {
-	return string(c) == strings.ToUpper(string(c))
+	return unicode.IsUpper(rune(c[0]))
 }
 
 // path is a path through caves.
@@ -82,19 +83,16 @@ func onlyOnce(p path, c cave) bool {
 
 // revisitOnce returns whether the small cave can be visited after the path if one small cave can be visited twice.
 func revisitOne(p path, c cave) bool {
-	var hasSmallRevisit bool
 	v := make(map[cave]int)
-L:
 	for _, s := range p {
 		if !s.isBig() {
 			v[s] += 1
 			if v[s] > 1 {
-				hasSmallRevisit = true
-				break L
+				return !p.visited(c)
 			}
 		}
 	}
-	return !hasSmallRevisit || !p.visited(c)
+	return true
 }
 
 // pathsCount counts how many paths are possible in the tunnel system, given the visit rules for the small caves.
