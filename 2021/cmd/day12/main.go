@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
+	"sync/atomic"
 )
 
 // A cave is a node in the tunnel graph.
@@ -95,36 +97,33 @@ L:
 	return !hasSmallRevisit || !p.visited(c)
 }
 
-// findPaths from returns all allowed paths that begin with the given path and end on the end cave.
-// The smallCaveCheck determines whether a small cave may be visited next.
-func findPathsFrom(t tunnelSystem, smallCaveCheck func(path, cave) bool, p path) []path {
-	soFar := make(path, len(p))
-	copy(soFar, p)
+// pathsCount counts how many paths are possible in the tunnel system, given the visit rules for the small caves.
+func (t tunnelSystem) pathsCount(smallCaveCheck func(path, cave) bool) int32 {
+	var c int32
+	var wg sync.WaitGroup
 
-	last := soFar[len(soFar)-1]
-
-	nexts := make([]cave, len(t[last]))
-	copy(nexts, t[last])
-
-	var ps []path
-	for _, n := range nexts {
-		if n == end {
-			ps = append(ps, append(soFar, n))
-		} else if n.isBig() || smallCaveCheck(soFar, n) {
-			ps = append(ps, findPathsFrom(t, smallCaveCheck, append(soFar, n))...)
+	var fp func(path)
+	fp = func(p path) {
+		defer wg.Done()
+		soFar := make(path, len(p))
+		copy(soFar, p)
+		last := soFar[len(soFar)-1]
+		nexts := t[last]
+		for _, n := range nexts {
+			if n == end {
+				atomic.AddInt32(&c, 1)
+			} else if n.isBig() || smallCaveCheck(soFar, n) {
+				wg.Add(1)
+				go fp(append(soFar, n))
+			}
 		}
 	}
-	return ps
-}
 
-// quickPathsCount returns the count of paths through the tunnel system which visit each small cave at most once.
-func (t tunnelSystem) quickPathsCount() int {
-	return len(findPathsFrom(t, onlyOnce, path([]cave{start})))
-}
+	wg.Add(1)
+	go fp(path([]cave{start}))
 
-// slowPathsCount returns the count of paths through the tunnel system which allow one small cave to be revisited.
-func (t tunnelSystem) slowPathsCount() int {
-	return len(findPathsFrom(t, revisitOne, path([]cave{start})))
+	wg.Wait()
+	return c
 }
 
 func main() {
@@ -133,6 +132,6 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Input ingestion went wrong: ", err)
 		os.Exit(1)
 	}
-	fmt.Println("Part 1:", ts.quickPathsCount())
-	fmt.Println("Part 2:", ts.slowPathsCount())
+	fmt.Println("Part 1:", ts.pathsCount(onlyOnce))
+	fmt.Println("Part 2:", ts.pathsCount(revisitOne))
 }
