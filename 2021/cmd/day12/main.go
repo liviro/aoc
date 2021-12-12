@@ -32,13 +32,13 @@ func (p path) visited(c cave) bool {
 	return false
 }
 
-// tunnels is the cave system graph.
+// tunnelSystem is the cave graph.
 // This is an adjacency map graph representation: each key's value is a list of caves it has a tunnel to.
-type tunnels map[cave][]cave
+type tunnelSystem map[cave][]cave
 
-// addTunnel adds a connection between the two given caves to the existing tunnel graph.
+// addTunnel adds a connection between the two given caves to the existing tunnel system.
 // start and end have special treatment: no tunnel ever ends at start cave or starts at the end cave.
-func (t tunnels) addTunnel(a, b cave) {
+func (t tunnelSystem) addTunnel(a, b cave) {
 	if b != start && a != end {
 		if _, ok := t[a]; !ok {
 			t[a] = []cave{b}
@@ -56,8 +56,8 @@ func (t tunnels) addTunnel(a, b cave) {
 	}
 }
 
-// extractTunnels reads in the tunnels from the given file.
-func extractTunnels(fileName string) (tunnels, error) {
+// extractTunnelSystem reads in the tunnelSystem from the given file.
+func extractTunnelSystem(fileName string) (tunnelSystem, error) {
 	fp, err := os.Open(fileName)
 	if err != nil {
 		return nil, err
@@ -65,7 +65,7 @@ func extractTunnels(fileName string) (tunnels, error) {
 	defer fp.Close()
 	s := bufio.NewScanner(fp)
 	s.Split(bufio.ScanLines)
-	ts := make(tunnels)
+	ts := make(tunnelSystem)
 	for s.Scan() {
 		ns := strings.Split(s.Text(), "-")
 		ts.addTunnel(cave(ns[0]), cave(ns[1]))
@@ -97,7 +97,7 @@ L:
 
 // findPaths from returns all allowed paths that begin with the given path and end on the end cave.
 // The smallCaveCheck determines whether a small cave may be visited next.
-func findPathsFrom(t tunnels, smallCaveCheck func(path, cave) bool, p path) []path {
+func findPathsFrom(t tunnelSystem, smallCaveCheck func(path, cave) bool, p path) []path {
 	soFar := make(path, len(p))
 	copy(soFar, p)
 
@@ -118,17 +118,17 @@ func findPathsFrom(t tunnels, smallCaveCheck func(path, cave) bool, p path) []pa
 }
 
 // quickPathsCount returns the count of paths through the tunnel system which visit each small cave at most once.
-func (t tunnels) quickPathsCount() int {
+func (t tunnelSystem) quickPathsCount() int {
 	return len(findPathsFrom(t, onlyOnce, path([]cave{start})))
 }
 
 // slowPathsCount returns the count of paths through the tunnel system which allow one small cave to be revisited.
-func (t tunnels) slowPathsCount() int {
+func (t tunnelSystem) slowPathsCount() int {
 	return len(findPathsFrom(t, revisitOne, path([]cave{start})))
 }
 
 func main() {
-	ts, err := extractTunnels("input.txt")
+	ts, err := extractTunnelSystem("input.txt")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Input ingestion went wrong: ", err)
 		os.Exit(1)
