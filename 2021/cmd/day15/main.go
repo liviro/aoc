@@ -10,21 +10,18 @@ import (
 
 // max returns the largest of the inputs.
 func max(a, b int) int {
-	if a < b {
-		return b
+	if a > b {
+		return a
 	}
-	return a
+	return b
 }
 
 // min returns the smallest of the inputs.
-func min(ns ...int) int {
-	m := math.MaxInt64
-	for _, n := range ns {
-		if n < m {
-			m = n
-		}
+func min(a, b int) int {
+	if a < b {
+		return a
 	}
-	return m
+	return b
 }
 
 // riskMap represents the 2-dimensional map of risks.
@@ -106,21 +103,21 @@ func (rm riskMap) lowestRiskPathCost() int {
 func memoOnDiagonal(rm riskMap, memo [][]int, d int) {
 	size := len(rm)
 	for i, j := max(0, d-size), min(d, size-1); i <= min(d, size-1); i, j = i+1, j-1 {
-		var ns []int
+		m := math.MaxInt64
 		if j != 0 {
-			ns = append(ns, memo[i][j-1])
+			m = min(m, memo[i][j-1])
 		}
 		if i != 0 {
-			ns = append(ns, memo[i-1][j])
+			m = min(m, memo[i-1][j])
 		}
 		if j != size-1 && memo[i][j+1] != 0 {
-			ns = append(ns, memo[i][j+1])
+			m = min(m, memo[i][j+1])
 		}
 		if i != size-1 && memo[i+1][j] != 0 {
-			ns = append(ns, memo[i+1][j])
+			m = min(m, memo[i+1][j])
 		}
 
-		memo[i][j] = min(ns...) + rm[i][j]
+		memo[i][j] = m + rm[i][j]
 	}
 }
 
