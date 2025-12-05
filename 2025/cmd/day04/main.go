@@ -59,13 +59,8 @@ func clear(g grid) (grid, int) {
 }
 
 func part1(g grid) int {
-	s := 0
-	for r := range g.rolls {
-		if countNeighborRolls(g, r) < 4 {
-			s++
-		}
-	}
-	return s
+	_, c := clear(g)
+	return c
 }
 
 func part2(start grid) int {
