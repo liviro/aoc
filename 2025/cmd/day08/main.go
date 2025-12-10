@@ -36,12 +36,6 @@ func (c conn) String() string {
 	return fmt.Sprintf("%s - %s (dist = %.2f)", c.a, c.b, c.dist)
 }
 
-type byDist []conn
-
-func (a byDist) Len() int           { return len(a) }
-func (a byDist) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a byDist) Less(i, j int) bool { return a[i].dist < a[j].dist }
-
 func extractBoxes(name string) []position {
 	fp, err := os.Open(name)
 	if err != nil {
@@ -110,7 +104,7 @@ func addToCircuit(circuits []map[position]struct{}, c conn) []map[position]struc
 
 func part1(bs []position) int {
 	all := allDistances(bs)
-	sort.Sort(byDist(all))
+	sort.Slice(all, func(i, j int) bool { return all[i].dist < all[j].dist })
 	top := all[:1000]
 	var cs []map[position]struct{}
 	for _, c := range top {
@@ -132,7 +126,7 @@ func part1(bs []position) int {
 
 func part2(bs []position) int {
 	all := allDistances(bs)
-	sort.Sort(byDist(all))
+	sort.Slice(all, func(i, j int) bool { return all[i].dist < all[j].dist })
 	var cs []map[position]struct{}
 	for _, c := range all {
 		cs = addToCircuit(cs, c)
